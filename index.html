@@ -1,0 +1,48 @@
+<script>
+  const apiKey = "TU_API_KEY"; // 👈 Reemplaza con tu API key de OpenWeatherMap
+
+  function fetchWeather(lat, lon) {
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const city = data.name;
+        const temp = Math.round(data.main.temp);
+        const desc = data.weather[0].description;
+        const icon = data.weather[0].icon;
+        const wind = data.wind.speed;
+        const humidity = data.main.humidity;
+
+        document.querySelectorAll('.city').forEach(el => el.textContent = city);
+        document.querySelectorAll('.temp').forEach(el => el.textContent = `${temp}°C`);
+        document.querySelectorAll('.status').forEach(el => el.textContent = desc.charAt(0).toUpperCase() + desc.slice(1));
+        document.querySelectorAll('.day-icon').forEach(el => {
+          el.innerHTML = `<img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="icon" width="48" height="48">`;
+        });
+
+        document.querySelector('.main-info div:nth-child(1)').innerHTML += `<br>💨 ${wind} m/s &nbsp;&nbsp; 💧 ${humidity}%`;
+      })
+      .catch(err => console.error("Error fetching weather:", err));
+  }
+
+  function getLocationAndWeather() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          fetchWeather(lat, lon);
+        },
+        () => {
+          alert("No se pudo acceder a tu ubicación.");
+        }
+      );
+    } else {
+      alert("Tu navegador no soporta geolocalización.");
+    }
+  }
+
+  // Ejecutar al cargar
+  getLocationAndWeather();
+</script>
